@@ -1,6 +1,10 @@
-const { MultiBar, Presets } = require('cli-progress')
-const defaultFormatValue = require('cli-progress/lib/format-value')
-const BarElement = require('cli-progress/lib/generic-bar')
+import {
+  MultiBar,
+  GenericBar,
+  Presets,
+  Format,
+  ValueFormatter
+} from 'cli-progress'
 
 class MultiProgressBar extends MultiBar {
   constructor(options = {}, presets = Presets.legacy) {
@@ -16,12 +20,16 @@ class MultiProgressBar extends MultiBar {
     )
   }
 
-  create(total, current, payload) {
+  create(
+    total: number,
+    current: number,
+    payload: {}
+  ) {
     const bar = super.create(total, current, payload)
 
     /** freeze payload from changes */
     bar.start = (total, startValue) => {
-      BarElement.prototype.start.call(bar, total, startValue, payload)
+      GenericBar.prototype.start.call(bar, total, startValue, payload)
     }
 
     return bar
@@ -48,7 +56,7 @@ class MultiProgressBar extends MultiBar {
   }
 }
 
-function formatValue(value, options, name) {
+const formatValue: ValueFormatter = (value, options, name) => {
   switch(name) {
     case 'percentage':
       return value.toString().padStart(3)
@@ -57,7 +65,7 @@ function formatValue(value, options, name) {
     case 'total':
       return value.toString().padEnd(4)
     default:
-      return defaultFormatValue(value, options, name)
+      return Format.ValueFormat(value, options, name)
   }
 }
 
