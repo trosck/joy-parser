@@ -1,3 +1,7 @@
+import fs from 'fs'
+import { access, mkdir } from 'fs/promises'
+import path from 'path'
+
 /**
  * Lowercase letters and replace
  * spaces by underscore
@@ -16,6 +20,25 @@ const fixPath = (path: string) => path?.replace(/\s/, '_')?.toLowerCase()
  * @returns {String} image id
  */
 const getImageId = (imageName: string) => imageName.match(/(\d+.[\w]+)$/)?.[1]
+
+const makedirIfNotExist = async (targetPath: string) => {
+  const directories = targetPath.split('/')
+
+  const existedDirectories: string[] = []
+  for (const directory of directories) {
+
+    const directoryPath = path.resolve(
+      existedDirectories.join(path.delimiter),
+      directory
+    )
+
+    try {
+      await access(directoryPath, fs.constants.W_OK)
+    } catch (e) {
+      await mkdir(directoryPath)
+    }
+  }
+}
 
 export {
   fixPath,
