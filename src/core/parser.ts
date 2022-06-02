@@ -3,10 +3,24 @@ import fs from 'fs'
 import promises from "fs/promises"
 
 import { parse } from 'node-html-parser'
-import { fixPath, getImageId } from '@/utils'
-import { MultiProgressBar } from '@/core/progress-bar'
+import { SingleBar } from 'cli-progress'
+
 import { createAxiosInstance } from '@/core/axios'
+import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
+import { MultiProgressBar } from '@/core/progress-bar'
 import { Axios } from 'axios'
+
+export type Task = {
+  link: string
+  directory: string
+  totalPages: number
+  startPage: number
+  // parse with negative rating
+  isAll: boolean
+  // parse from down to top
+  isReverse: boolean
+  downloadImagesInComments: boolean
+}
 
 class Parser {
 
@@ -14,54 +28,64 @@ class Parser {
   private categoryFolder = ''
   private unresolvedImages = []
 
+  private multibar: MultiProgressBar
+  private progressPageScrapping: SingleBar
+  private progressArticlesOnPage: SingleBar
+  private progressDownloadArticleImages: SingleBar
+
   constructor(private readonly SITE_URL: string) {
     this.SITE_URL = SITE_URL;
     this.axios = createAxiosInstance(SITE_URL)
 
     /** terminal progress bars */
-    this.multibar = new progress_bar_1.MultiProgressBar();
+    this.multibar = new MultiProgressBar();
     this.progressPageScrapping = this.multibar.create(0, 0, { name: 'Pages' });
     this.progressArticlesOnPage = this.multibar.create(0, 0, { name: 'Articles' });
     this.progressDownloadArticleImages = this.multibar.create(0, 0, { name: 'Article images' });
   }
 
-  start(task) {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-      const categoryFolder = path_1.default.join(__dirname, '..', task.directory, (0, utils_1.fixPath)((_a = task.link.match(/tag\/([\w\+]+)/)) === null || _a === void 0 ? void 0 : _a[1]));
-      console.log(categoryFolder);
-      /**
-       * create dir for store
-       * if not exist
-       */
-      try {
-        yield (0, promises_1.access)(categoryFolder, fs_1.constants.W_OK);
-      }
-      catch (e) {
-        yield (0, promises_1.mkdir)(categoryFolder);
-      }
-      this.categoryFolder = categoryFolder;
-      this.progressPageScrapping.start(task.totalPages, 0);
-      let page = task.startPage;
-      while (true) {
-        const countParsingPage = page - task.startPage;
-        if ((countParsingPage) === task.totalPages)
-          break;
-        const result = yield this.parsePage(task, page);
-        if (!result)
-          break;
-        this.progressPageScrapping.increment();
-        page++;
-      }
-      this.multibar.stop();
-      console.log();
-      console.log('done!');
-      if (this.unresolvedImages.length) {
-        console.log('some images not downloaded:');
-        this.unresolvedImages.splice(0).forEach(console.log);
-      }
-    });
+  async start(task: Task) {
+    const categoryTag = task.link.match(/tag\/([\w\+]+)/)?.[1]
+    if (!categoryTag) {
+      throw new Error('incorrect link: ' + task.link)
+    }
+
+    this.categoryFolder = path.join(
+      __dirname,
+      '..',
+      task.directory,
+      fixPath(categoryTag)
+    )
+
+    console.log(this.categoryFolder);
+
+    await makedirIfNotExist(this.categoryFolder)
+
+    this.progressPageScrapping.start(task.totalPages, 0)
+    let page = task.startPage
+
+    while (true) {
+      const countParsingPage = page - task.startPage
+      if ((countParsingPage) === task.totalPages) break
+
+      const result = await this.parsePage(task, page)
+      if (!result) break
+
+      this.progressPageScrapping.increment()
+      page++
+    }
+
+    this.multibar.stop();
+
+    console.log();
+    console.log('done!');
+
+    if (this.unresolvedImages.length) {
+      console.log('some images not downloaded:');
+      this.unresolvedImages.splice(0).forEach(console.log);
+    }
   }
+
   parsePage(task, page = task.startPage) {
     return __awaiter(this, void 0, void 0, function* () {
       let url = task.link;
