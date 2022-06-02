@@ -42,5 +42,6 @@ const makedirIfNotExist = async (targetPath: string) => {
 
 export {
   fixPath,
-  getImageId
+  getImageId,
+  makedirIfNotExist
 }
