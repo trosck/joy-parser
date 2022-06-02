@@ -14,12 +14,12 @@ const fixPath = (path: string) => path?.replace(/\s/, '_')?.toLowerCase()
 /**
  * Get image id from src
  *
- * @param {String} imageName
+ * @param {String} imagePath
  * full image name or src
  *
  * @returns {String} image id
  */
-const getImageId = (imageName: string) => imageName.match(/(\d+.[\w]+)$/)?.[1]
+const getImageId = (imagePath: string) => imagePath.match(/(\d+.[\w]+)$/)?.[1]
 
 const makedirIfNotExist = async (targetPath: string) => {
   const directories = targetPath.split('/')
