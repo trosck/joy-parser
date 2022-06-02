@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-import axios, { Axios, AxiosRequestConfig } from 'axios'
+import { Axios } from 'axios'
 import { parse } from 'node-html-parser'
 
 class ApiUtils extends Axios {
