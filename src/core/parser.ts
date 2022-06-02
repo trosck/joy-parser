@@ -1,14 +1,11 @@
 import path from 'path'
-import fs from 'fs'
-import promises from "fs/promises"
 
-import { parse } from 'node-html-parser'
+import { HTMLElement, parse } from 'node-html-parser'
 import { SingleBar } from 'cli-progress'
 
-import { createAxiosInstance } from '@/core/axios'
 import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
+import { ApiUtils, createAxiosInstance } from '@/core/axios'
 import { MultiProgressBar } from '@/core/progress-bar'
-import { Axios } from 'axios'
 
 export type Task = {
   link: string
@@ -24,9 +21,9 @@ export type Task = {
 
 class Parser {
 
-  private axios: Axios
+  private axios: ApiUtils
   private categoryFolder = ''
-  private unresolvedImages = []
+  private unresolvedImages: string[] = []
 
   private multibar: MultiProgressBar
   private progressPageScrapping: SingleBar
@@ -92,7 +89,7 @@ class Parser {
     if (task.isAll) url += '/all'
 
     const document = parse((await this.axios.get(`${url}/${page}`)).data)
-    const articles = Array.from(
+    const articles: HTMLElement[] = Array.from(
       document.querySelectorAll('.postContainer .article')
     )
 
@@ -110,36 +107,50 @@ class Parser {
     return true;
   }
 
-
-_Parser_instances = new WeakSet(), _Parser_parseArticle = function _Parser_parseArticle(article, articleIndex, pageIndex, task) {
-  var _a;
-  return __awaiter(this, void 0, void 0, function* () {
+  async parseArticle(
+    article: HTMLElement,
+    articleIndex: number,
+    pageIndex: number,
+    task: Task
+  ) {
     const articleImages = Array.from(article.querySelectorAll('.image img'));
+
     /** add images from comments to download */
     if (task.downloadImagesInComments) {
-      Array.prototype.push.apply(articleImages, yield this.axios.getImagesFromComments((_a = article
-        .querySelector('a.link')
-        .getAttribute('href')
-        .match(/\/(\d+)/)) === null || _a === void 0 ? void 0 : _a[1]));
+      
+      Array.prototype.push.apply(
+        articleImages,
+        await this.axios.getImagesFromComments(
+          this.getArticleId(article)
+        )
+      )
     }
+
     this.progressDownloadArticleImages.start(articleImages.length, 0);
     for (let imageIndex = 0; imageIndex < articleImages.length; imageIndex++) {
       const image = articleImages[imageIndex];
-      const src = image.getAttribute('src');
-      const name = `${pageIndex}_${articleIndex + 1}_${imageIndex + 1}_${(0, utils_1.getImageId)(src)}`;
+      const src = image.getAttribute('src')
+
+      if (!src) continue
+
+      const name = `${pageIndex}_${articleIndex + 1}_${imageIndex + 1}_${getImageId(src)}`;
+
       try {
-        yield this.axios.downloadFile(src, this.categoryFolder, name);
-      }
-      catch (e) {
-        this.unresolvedImages.push(src);
-        console.log('error', e, src);
-      }
-      finally {
+        await this.axios.downloadFile(src, this.categoryFolder, name)
+      } catch (e) {
+        this.unresolvedImages.push(src)
+      } finally {
         this.progressDownloadArticleImages.increment();
       }
     }
-  });
-}
+  }
+
+  private getArticleId(article: HTMLElement) {
+    return article
+      ?.querySelector('a.link')
+      ?.getAttribute('href')
+      ?.match(/\/(\d+)/)?.[1]
+  }
 }
 
 export default Parser
