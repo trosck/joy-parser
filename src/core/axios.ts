@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 
 import { Axios } from 'axios'
-import { parse } from 'node-html-parser'
+import { HTMLElement, parse } from 'node-html-parser'
 
 class ApiUtils extends Axios {
 
@@ -12,16 +12,26 @@ class ApiUtils extends Axios {
    * @param postId
    * @returns
    */
-  getImagesFromComments = async (postId: string | number) => {
+  async getImagesFromComments(
+    postId: string | number | undefined
+  ): Promise<string[]> {
+
+    if (!postId) return []
+
     const { data } = await this.get(
       `/post/comments/${postId}?_=${Date.now()}`
     )
 
-    return Array.from(
-      parse(data)
-        .querySelectorAll('.image img')
+    const images: HTMLElement[] = Array.from(
+      parse(data).querySelectorAll('.image img')
     )
-      .map(imageEl => imageEl.getAttribute('src'))
+
+    if (!images.length) return []
+
+    return images.map(
+      el => el.getAttribute('src') ?? ''
+    )
+      .filter(el => el.length)
   }
 
   /**
@@ -32,11 +42,11 @@ class ApiUtils extends Axios {
    * @param downloadFolder
    * @param fileName
    */
-  downloadFile = async (
+  async downloadFile(
     fileUrl: string,
     downloadFolder: string,
     fileName: string
-  ) => {
+  ) {
     const localFilePath = path.resolve(__dirname, downloadFolder, fileName);
     try {
       const response = await this.get(
@@ -68,5 +78,6 @@ function createAxiosInstance(baseURL: string) {
 }
 
 export {
+  ApiUtils,
   createAxiosInstance
 }
