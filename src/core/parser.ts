@@ -86,28 +86,31 @@ class Parser {
     }
   }
 
-  parsePage(task, page = task.startPage) {
-    return __awaiter(this, void 0, void 0, function* () {
-      let url = task.link;
-      if (task.isAll)
-        url += '/all';
-      const document = (0, node_html_parser_1.parse)((yield this.axios.get(`${url}/${page}`)).data);
-      const articles = Array.from(document.querySelectorAll('.postContainer .article'));
-      /** end of parsing */
-      if (!articles.length)
-        return null;
-      /** order by date */
-      if (task.isReverse)
-        articles.reverse();
-      this.progressArticlesOnPage.start(articles.length, 0);
-      for (let articleIndex = 0; articleIndex < articles.length; articleIndex++) {
-        yield __classPrivateFieldGet(this, _Parser_instances, "m", _Parser_parseArticle).call(this, articles[articleIndex], articleIndex, page, task);
-        this.progressArticlesOnPage.increment();
-      }
-      return true;
-    });
+  async parsePage(task: Task, page = task.startPage) {
+    let url = task.link
+
+    if (task.isAll) url += '/all'
+
+    const document = parse((await this.axios.get(`${url}/${page}`)).data)
+    const articles = Array.from(
+      document.querySelectorAll('.postContainer .article')
+    )
+
+    if (!articles.length) return null;
+
+    /** order by date */
+    if (task.isReverse) articles.reverse()
+
+    this.progressArticlesOnPage.start(articles.length, 0)
+    for (let articleIndex = 0; articleIndex < articles.length; articleIndex++) {
+      await this.parseArticle(articles[articleIndex], articleIndex, page, task)
+      this.progressArticlesOnPage.increment()
+    }
+
+    return true;
   }
-}
+
+
 _Parser_instances = new WeakSet(), _Parser_parseArticle = function _Parser_parseArticle(article, articleIndex, pageIndex, task) {
   var _a;
   return __awaiter(this, void 0, void 0, function* () {
@@ -136,6 +139,7 @@ _Parser_instances = new WeakSet(), _Parser_parseArticle = function _Parser_parse
       }
     }
   });
+}
 }
 
 export default Parser
