@@ -1,11 +1,12 @@
 import path from 'path'
 
 import { HTMLElement, parse } from 'node-html-parser'
-import { SingleBar } from 'cli-progress'
 
 import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
-import { ApiUtils, createAxiosInstance } from '@/core/axios'
-import { MultiProgressBar } from '@/core/progress-bar'
+import { ApiUtils, createAxiosInstance } from '@/core/api-utils'
+import { IProgressBar } from './progress-bar-type'
+
+
 
 export type Task = {
   link: string
@@ -21,24 +22,17 @@ export type Task = {
 
 class Parser {
 
-  private axios: ApiUtils
+  private apiUtils: ApiUtils
   private categoryFolder = ''
   private unresolvedImages: string[] = []
 
-  private multibar: MultiProgressBar
-  private progressPageScrapping: SingleBar
-  private progressArticlesOnPage: SingleBar
-  private progressDownloadArticleImages: SingleBar
-
-  constructor(private readonly SITE_URL: string) {
-    this.SITE_URL = SITE_URL;
-    this.axios = createAxiosInstance(SITE_URL)
-
-    /** terminal progress bars */
-    this.multibar = new MultiProgressBar();
-    this.progressPageScrapping = this.multibar.create(0, 0, { name: 'Pages' });
-    this.progressArticlesOnPage = this.multibar.create(0, 0, { name: 'Articles' });
-    this.progressDownloadArticleImages = this.multibar.create(0, 0, { name: 'Article images' });
+  constructor(
+    SITE_URL: string,
+    private readonly progressPageScrapping: IProgressBar,
+    private readonly progressArticlesOnPage: IProgressBar,
+    private readonly progressDownloadArticleImages: IProgressBar
+  ) {
+    this.apiUtils = createAxiosInstance(SITE_URL)
   }
 
   async start(task: Task) {
@@ -72,8 +66,6 @@ class Parser {
       page++
     }
 
-    this.multibar.stop();
-
     console.log();
     console.log('done!');
 
@@ -88,7 +80,7 @@ class Parser {
 
     if (task.isAll) url += '/all'
 
-    const document = parse((await this.axios.get(`${url}/${page}`)).data)
+    const document = parse((await this.apiUtils.get(`${url}/${page}`)).data)
     const articles: HTMLElement[] = Array.from(
       document.querySelectorAll('.postContainer .article')
     )
@@ -120,7 +112,7 @@ class Parser {
       
       Array.prototype.push.apply(
         articleImages,
-        await this.axios.getImagesFromComments(
+        await this.apiUtils.getImagesFromComments(
           this.getArticleId(article)
         )
       )
@@ -136,7 +128,7 @@ class Parser {
       const name = `${pageIndex}_${articleIndex + 1}_${imageIndex + 1}_${getImageId(src)}`;
 
       try {
-        await this.axios.downloadFile(src, this.categoryFolder, name)
+        await this.apiUtils.downloadFile(src, this.categoryFolder, name)
       } catch (e) {
         this.unresolvedImages.push(src)
       } finally {
