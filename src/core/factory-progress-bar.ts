@@ -4,7 +4,6 @@ import { IProgressBar } from '@/core/progress-bar-type'
 type factoryProgressBarReturn = {
   progressPageScrapping: IProgressBar
   progressArticlesOnPage: IProgressBar
-  progressDownloadArticleImages: IProgressBar
 }
 
 export function factoryProgressBar(type: 'cli' | 'ui'): factoryProgressBarReturn {
@@ -13,8 +12,7 @@ export function factoryProgressBar(type: 'cli' | 'ui'): factoryProgressBarReturn
       const multibar = new MultiProgressBar()
       return {
         progressPageScrapping: multibar.create(0, 0, { name: 'Pages' }),
-        progressArticlesOnPage: multibar.create(0, 0, { name: 'Articles' }),
-        progressDownloadArticleImages: multibar.create(0, 0, { name: 'Images' })
+        progressArticlesOnPage: multibar.create(0, 0, { name: 'Articles' })
       }
     }
 

@@ -27,8 +27,7 @@ class Parser {
   constructor(
     SITE_URL: string,
     private readonly progressPageScrapping: IProgressBar,
-    private readonly progressArticlesOnPage: IProgressBar,
-    private readonly progressDownloadArticleImages: IProgressBar
+    private readonly progressArticlesOnPage: IProgressBar
   ) {
     this.apiUtils = createAxiosInstance(SITE_URL)
   }
