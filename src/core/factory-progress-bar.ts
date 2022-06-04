@@ -1,5 +1,5 @@
 import { MultiProgressBar } from '@/core/cli-progress-bar'
-import { IProgressBar } from './progress-bar-type'
+import { IProgressBar } from '@/core/progress-bar-type'
 
 type factoryProgressBarReturn = {
   progressPageScrapping: IProgressBar
