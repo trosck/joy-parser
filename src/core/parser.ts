@@ -6,11 +6,9 @@ import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
 import { ApiUtils, createAxiosInstance } from '@/core/api-utils'
 import { IProgressBar } from './progress-bar-type'
 
-
-
-export type Task = {
+export interface Task {
   link: string
-  directory: string
+  directoryToSave: string
   totalPages: number
   startPage: number
   // parse with negative rating
@@ -44,7 +42,7 @@ class Parser {
     this.categoryFolder = path.join(
       __dirname,
       '..',
-      task.directory,
+      task.directoryToSave,
       fixPath(categoryTag)
     )
 
