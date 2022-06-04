@@ -115,7 +115,6 @@ class Parser {
       )
     }
 
-    this.progressDownloadArticleImages.start(articleImages.length, 0);
     for (let imageIndex = 0; imageIndex < articleImages.length; imageIndex++) {
       const image = articleImages[imageIndex];
       const src = image.getAttribute('src')
@@ -128,8 +127,6 @@ class Parser {
         await this.apiUtils.downloadFile(src, this.categoryFolder, name)
       } catch (e) {
         this.unresolvedImages.push(src)
-      } finally {
-        this.progressDownloadArticleImages.increment();
       }
     }
   }
