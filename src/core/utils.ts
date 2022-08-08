@@ -22,21 +22,10 @@ const fixPath = (path: string) => path?.replace(/\s/, '_')?.toLowerCase()
 const getImageId = (imagePath: string) => imagePath.match(/(\d+.[\w]+)$/)?.[1]
 
 const makedirIfNotExist = async (targetPath: string) => {
-  const directories = targetPath.split('/')
-
-  const existedDirectories: string[] = []
-  for (const directory of directories) {
-
-    const directoryPath = path.resolve(
-      existedDirectories.join(path.delimiter),
-      directory
-    )
-
-    try {
-      await access(directoryPath, fs.constants.W_OK)
-    } catch (e) {
-      await mkdir(directoryPath)
-    }
+  try {
+    await access(targetPath, fs.constants.W_OK)
+  } catch (e) {
+    await mkdir(targetPath)
   }
 }
 
