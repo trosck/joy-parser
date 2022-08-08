@@ -4,52 +4,35 @@ import { HTMLElement, parse } from 'node-html-parser'
 
 import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
 import { ApiUtils, createAxiosInstance } from '@/core/api-utils'
-import { IProgressBar } from './progress-bar-type'
+import { IProgressBar } from '@/types/progress-bar'
+import { Task } from '@/types/task'
 
-export interface Task {
-  link: string
-  directoryToSave: string
-  totalPages: number
-  startPage: number
-  // parse with negative rating
-  isAll: boolean
-  // parse from down to top
-  isReverse: boolean
-  downloadImagesInComments: boolean
-}
+export class Parser {
 
-class Parser {
-
-  private apiUtils: ApiUtils
   private categoryFolder = ''
-  private unresolvedImages: string[] = []
+  private images: Array<{ src: string, name: string }> = []
 
   constructor(
-    SITE_URL: string,
-    private readonly progressPageScrapping: IProgressBar,
-    private readonly progressArticlesOnPage: IProgressBar
+    private readonly apiUtils: ApiUtils,
+    private readonly progressPageScrapping?: IProgressBar,
+    private readonly progressArticlesOnPage?: IProgressBar
   ) {
-    this.apiUtils = createAxiosInstance(SITE_URL)
   }
 
-  async start(task: Task) {
+  async parse(task: Task) {
     const categoryTag = task.link.match(/tag\/([\w\+]+)/)?.[1]
     if (!categoryTag) {
       throw new Error('incorrect link: ' + task.link)
     }
 
-    this.categoryFolder = path.join(
-      __dirname,
-      '..',
+    this.categoryFolder = path.resolve(
       task.directoryToSave,
       fixPath(categoryTag)
     )
 
-    console.log(this.categoryFolder);
-
     await makedirIfNotExist(this.categoryFolder)
 
-    this.progressPageScrapping.start(task.totalPages, 0)
+    this.progressPageScrapping?.start(task.totalPages, 0)
     let page = task.startPage
 
     while (true) {
@@ -59,17 +42,11 @@ class Parser {
       const result = await this.parsePage(task, page)
       if (!result) break
 
-      this.progressPageScrapping.increment()
+      this.progressPageScrapping?.increment()
       page++
     }
 
-    console.log();
-    console.log('done!');
-
-    if (this.unresolvedImages.length) {
-      console.log('some images not downloaded:');
-      this.unresolvedImages.splice(0).forEach(console.log);
-    }
+    return this.images.splice(0)
   }
 
   async parsePage(task: Task, page = task.startPage) {
@@ -87,10 +64,10 @@ class Parser {
     /** order by date */
     if (task.isReverse) articles.reverse()
 
-    this.progressArticlesOnPage.start(articles.length, 0)
+    this.progressArticlesOnPage?.start(articles.length, 0)
     for (let articleIndex = 0; articleIndex < articles.length; articleIndex++) {
       await this.parseArticle(articles[articleIndex], articleIndex, page, task)
-      this.progressArticlesOnPage.increment()
+      this.progressArticlesOnPage?.increment()
     }
 
     return true;
@@ -106,7 +83,6 @@ class Parser {
 
     /** add images from comments to download */
     if (task.downloadImagesInComments) {
-      
       Array.prototype.push.apply(
         articleImages,
         await this.apiUtils.getImagesFromComments(
@@ -122,12 +98,7 @@ class Parser {
       if (!src) continue
 
       const name = `${pageIndex}_${articleIndex + 1}_${imageIndex + 1}_${getImageId(src)}`;
-
-      try {
-        await this.apiUtils.downloadFile(src, this.categoryFolder, name)
-      } catch (e) {
-        this.unresolvedImages.push(src)
-      }
+      this.images.push({ src, name })
     }
   }
 
@@ -138,5 +109,3 @@ class Parser {
       ?.match(/\/(\d+)/)?.[1]
   }
 }
-
-export default Parser
