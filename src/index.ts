@@ -1,2 +1,1 @@
-const Parser = require('./core/parser')
-module.exports = Parser
+export { Parser } from "@/core/parser";
