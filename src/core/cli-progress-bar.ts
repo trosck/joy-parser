@@ -1,8 +1,7 @@
 import {
   MultiBar,
-  GenericBar,
+  SingleBar,
   Presets,
-  Format,
   ValueFormatter
 } from 'cli-progress'
 
@@ -29,7 +28,7 @@ class MultiProgressBar extends MultiBar {
 
     /** freeze payload from changes */
     bar.start = (total, startValue) => {
-      GenericBar.prototype.start.call(bar, total, startValue, payload)
+      SingleBar.prototype.start.call(bar, total, startValue, payload)
     }
 
     return bar
@@ -65,7 +64,7 @@ const formatValue: ValueFormatter = (value, options, name) => {
     case 'total':
       return value.toString().padEnd(4)
     default:
-      return Format.ValueFormat(value, options, name)
+      return value.toString()
   }
 }
 

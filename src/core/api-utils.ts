@@ -1,10 +1,10 @@
 import path from 'path'
 import fs from 'fs'
 
-import { Axios } from 'axios'
+import axios from 'axios'
 import { HTMLElement, parse } from 'node-html-parser'
 
-class ApiUtils extends Axios {
+class ApiUtils extends axios.Axios {
 
   /**
    * returns array image sources from comments
@@ -47,7 +47,8 @@ class ApiUtils extends Axios {
     downloadFolder: string,
     fileName: string
   ) {
-    const localFilePath = path.resolve(__dirname, downloadFolder, fileName);
+    const localFilePath = path.resolve(downloadFolder, fileName);
+
     try {
       const response = await this.get(
         fileUrl,
