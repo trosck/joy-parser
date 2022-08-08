@@ -1,9 +1,14 @@
 import { MultiProgressBar } from '@/core/cli-progress-bar'
-import { IProgressBar } from '@/core/progress-bar-type'
+import { IProgressBar } from '@/types/progress-bar'
 
 type factoryProgressBarReturn = {
   progressPageScrapping: IProgressBar
   progressArticlesOnPage: IProgressBar
+}
+
+export function createProgressBar(name: string) {
+  const multibar = new MultiProgressBar()
+  return multibar.create(0, 0, { name })
 }
 
 export function factoryProgressBar(type: 'cli' | 'ui'): factoryProgressBarReturn {
