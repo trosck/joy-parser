@@ -23,6 +23,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@trosckey/scraper-utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@trosckey/scraper-utils/-/scraper-utils-0.3.0.tgz#d7273bee9d5618f7e8dc861f8ec763ce8b5ef12c"
+  integrity sha512-oWnsjxXcEe1uwYdIFAZujlUg2FPSVq96LltOTzYpJYxmfk4qt7lHAMeCPLR3KhxnWV1NNp7Da8VBgoD/Cf90BQ==
+
 "@types/cli-progress@^3.11.0":
   version "3.11.0"
   resolved "https://registry.yarnpkg.com/@types/cli-progress/-/cli-progress-3.11.0.tgz#ec79df99b26757c3d1c7170af8422e0fc95eef7e"
@@ -31,9 +36,9 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^18.6.4":
-  version "18.6.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.6.4.tgz#fd26723a8a3f8f46729812a7f9b4fc2d1608ed39"
-  integrity sha512-I4BD3L+6AWiUobfxZ49DlU43gtI+FTHSv9pE2Zekg6KjMpre4ByusaljW3vYSLJrvQ1ck1hUaeVu8HVlY3vzHg==
+  version "18.7.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.3.tgz#432c89796eab539b7a30b7b8801a727b585238a4"
+  integrity sha512-LJgzOEwWuMTBxHzgBR/fhhBOWrvBjvO+zPteUgbbuQi80rYIZHrk1mNbRUqPZqSLP2H7Rwt1EFLL/tNLD1Xx/w==
 
 ansi-regex@^5.0.1:
   version "5.0.1"
@@ -318,9 +323,9 @@ mylas@^2.1.9:
   integrity sha512-krnPUl3n9/k52FGCltWMYcqp9SttxjRJEy0sWLk+g7mIa7wnZrmNSZ40Acx7ghzRSOsxt2rEqMbaq4jWlnTDKg==
 
 node-html-parser@^5.3.3:
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/node-html-parser/-/node-html-parser-5.3.3.tgz#2845704f3a7331a610e0e551bf5fa02b266341b6"
-  integrity sha512-ncg1033CaX9UexbyA7e1N0aAoAYRDiV8jkTvzEnfd1GDvzFdrsXLzR4p4ik8mwLgnaKP/jyUFWDy9q3jvRT2Jw==
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/node-html-parser/-/node-html-parser-5.4.1.tgz#c9938b9521ef542c2374e4923078f8f2a365f50d"
+  integrity sha512-xy/O2wOEBJsIRLs4avwa1lVY7tIpXXOoHHUJLa0GvnoPPqMG1hgBVl1tNI3GHOwRktTVZy+Y6rjghk4B9/NLyg==
   dependencies:
     css-select "^4.2.1"
     he "1.2.0"
