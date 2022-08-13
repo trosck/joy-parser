@@ -1,11 +1,11 @@
 export interface Task {
   link: string
-  directoryToSave: string
-  totalPages: number
-  startPage: number
+  dir: string
+  total: number
+  start: number
   // parse with negative rating
-  isAll: boolean
+  all: boolean
   // parse from down to top
-  isReverse: boolean
-  downloadImagesInComments: boolean
+  reverse: boolean
+  comments: boolean
 }

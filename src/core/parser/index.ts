@@ -24,11 +24,11 @@ export class Parser {
 
     this.events.emit('startParsing')
 
-    let page = task.startPage
+    let page = task.start
     while (true) {
 
-      const countParsingPage = page - task.startPage
-      if ((countParsingPage) === task.totalPages) break
+      const countParsingPage = page - task.start
+      if ((countParsingPage) === task.total) break
 
       const result = await this.parsePage(task, page)
       if (!result) break
@@ -41,10 +41,10 @@ export class Parser {
     return this.images.splice(0)
   }
 
-  private async parsePage(task: Task, page = task.startPage) {
+  private async parsePage(task: Task, page = task.start) {
     let url = task.link
 
-    if (task.isAll) url += '/all'
+    if (task.all) url += '/all'
 
     const document = parse((await this.api.get(`${url}/${page}`)).data)
     const articles = Array.from(
@@ -54,7 +54,7 @@ export class Parser {
     if (!articles.length) return null;
 
     /** order by date */
-    if (task.isReverse) articles.reverse()
+    if (task.reverse) articles.reverse()
 
     this.events.emit('startParsingArticles')
 
@@ -84,7 +84,7 @@ export class Parser {
     const articleImages = Array.from(article.querySelectorAll('.image img'));
 
     /** add images from comments to download */
-    if (task.downloadImagesInComments) {
+    if (task.comments) {
       Array.prototype.push.apply(
         articleImages,
         await this.api.getImagesFromComments(

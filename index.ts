@@ -22,7 +22,7 @@ class Scraper {
 
   async parse(task: Task) {
 
-    await makedirIfNotExist(path.resolve(task.directoryToSave))
+    await makedirIfNotExist(path.resolve(task.dir))
     const images = await this.parser.parse(task)
 
     this.events.emit('imagesParsed', images.length)
@@ -34,7 +34,7 @@ class Scraper {
         async () => {
           await this.api.downloadFile(
             src,
-            task.directoryToSave,
+            task.dir,
             name
           )
         }, 3, () => {
