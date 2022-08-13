@@ -67,7 +67,7 @@ export class Parser {
         task
       )
 
-      this.events.emit('articleParsed', articleIndex + 1)
+      this.events.emit('articleParsed', articleIndex + 1, articles.length)
     }
 
     this.events.emit('endParsingArticles')
