@@ -22,7 +22,7 @@ export class Parser {
       throw new Error('incorrect link: ' + task.link)
     }
 
-    this.events.emit('startParsing')
+    this.events.emit('startParsingPages')
 
     let page = task.start
     while (true) {
@@ -33,10 +33,12 @@ export class Parser {
       const result = await this.parsePage(task, page)
       if (!result) break
 
-      this.events.emit('pageParsed', countParsingPage, page)
+      this.events.emit('pageProcessed', countParsingPage, page)
 
       page++
     }
+
+    this.events.emit('endParsingPages')
 
     return this.images.splice(0)
   }
