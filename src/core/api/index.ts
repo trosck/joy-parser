@@ -1,10 +1,10 @@
 import path from 'path'
 import fs from 'fs'
 
-import axios from 'axios'
+import { Axios } from 'axios'
 import { HTMLElement, parse } from 'node-html-parser'
 
-class ApiUtils extends axios.Axios {
+class Api extends Axios {
 
   /**
    * returns array image sources from comments
@@ -65,7 +65,7 @@ class ApiUtils extends axios.Axios {
 }
 
 function createAxiosInstance(baseURL: string) {
-  return new ApiUtils({
+  return new Api({
     baseURL,
     timeout: 30000,
     headers: {
@@ -79,6 +79,6 @@ function createAxiosInstance(baseURL: string) {
 }
 
 export {
-  ApiUtils,
+  Api,
   createAxiosInstance
 }

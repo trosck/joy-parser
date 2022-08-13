@@ -1,1 +1,1 @@
-export { Parser } from "@/core/parser";
+export { Parser } from "core/parser";

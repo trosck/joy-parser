@@ -1,6 +1,5 @@
 import fs from 'fs'
 import { access, mkdir } from 'fs/promises'
-import path from 'path'
 
 /**
  * Lowercase letters and replace
@@ -29,8 +28,16 @@ const makedirIfNotExist = async (targetPath: string) => {
   }
 }
 
+const getArticleId = (article: Element) => {
+  return article
+    ?.querySelector('a.link')
+    ?.getAttribute('href')
+    ?.match(/\/(\d+)/)?.[1]
+}
+
 export {
   fixPath,
   getImageId,
+  getArticleId,
   makedirIfNotExist
 }

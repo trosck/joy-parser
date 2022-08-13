@@ -1,7 +1,7 @@
-import { MultiProgressBar } from '@/core/cli-progress-bar'
-import { IProgressBar } from '@/types/progress-bar'
+import { IProgressBar } from 'core/progress/index.types'
+import { MultiProgressBar } from 'core/progress/cli'
 
-type factoryProgressBarReturn = {
+type TFactoryProgressBar = {
   progressPageScrapping: IProgressBar
   progressArticlesOnPage: IProgressBar
 }
@@ -11,7 +11,7 @@ export function createProgressBar(name: string) {
   return multibar.create(0, 0, { name })
 }
 
-export function factoryProgressBar(type: 'cli' | 'ui'): factoryProgressBarReturn {
+export function factoryProgressBar(type: 'cli' | 'ui'): TFactoryProgressBar {
   switch(type) {
     case 'cli': {
       const multibar = new MultiProgressBar()

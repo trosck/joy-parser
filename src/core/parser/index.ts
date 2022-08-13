@@ -1,61 +1,53 @@
-import path from 'path'
+import EventEmitter from 'events'
+import { parse } from 'node-html-parser'
 
-import { HTMLElement, parse } from 'node-html-parser'
-
-import { fixPath, getImageId, makedirIfNotExist } from '@/core/utils'
-import { ApiUtils, createAxiosInstance } from '@/core/api-utils'
-import { IProgressBar } from '@/types/progress-bar'
-import { Task } from '@/types/task'
+import { getImageId, getArticleId } from 'core/utils'
+import { Api, createAxiosInstance } from 'core/api'
+import { Task } from 'core/index.types'
 
 export class Parser {
 
-  private categoryFolder = ''
+  private api: Api
   private images: Array<{ src: string, name: string }> = []
+  public events: EventEmitter
 
-  constructor(
-    private readonly apiUtils: ApiUtils,
-    private readonly progressPageScrapping?: IProgressBar,
-    private readonly progressArticlesOnPage?: IProgressBar
-  ) {
+  constructor(baseUrl: string) {
+    this.events = new EventEmitter()
+    this.api = createAxiosInstance(baseUrl)
   }
 
-  async parse(task: Task) {
+  public async parse(task: Task) {
     const categoryTag = task.link.match(/tag\/([\w\+]+)/)?.[1]
     if (!categoryTag) {
       throw new Error('incorrect link: ' + task.link)
     }
 
-    this.categoryFolder = path.resolve(
-      task.directoryToSave,
-      fixPath(categoryTag)
-    )
+    this.events.emit('startParsing')
 
-    await makedirIfNotExist(this.categoryFolder)
-
-    this.progressPageScrapping?.start(task.totalPages, 0)
     let page = task.startPage
-
     while (true) {
+
       const countParsingPage = page - task.startPage
       if ((countParsingPage) === task.totalPages) break
 
       const result = await this.parsePage(task, page)
       if (!result) break
 
-      this.progressPageScrapping?.increment()
+      this.events.emit('pageParsed', countParsingPage, page)
+
       page++
     }
 
     return this.images.splice(0)
   }
 
-  async parsePage(task: Task, page = task.startPage) {
+  private async parsePage(task: Task, page = task.startPage) {
     let url = task.link
 
     if (task.isAll) url += '/all'
 
-    const document = parse((await this.apiUtils.get(`${url}/${page}`)).data)
-    const articles: HTMLElement[] = Array.from(
+    const document = parse((await this.api.get(`${url}/${page}`)).data)
+    const articles = Array.from(
       document.querySelectorAll('.postContainer .article')
     )
 
@@ -64,17 +56,27 @@ export class Parser {
     /** order by date */
     if (task.isReverse) articles.reverse()
 
-    this.progressArticlesOnPage?.start(articles.length, 0)
+    this.events.emit('startParsingArticles')
+
     for (let articleIndex = 0; articleIndex < articles.length; articleIndex++) {
-      await this.parseArticle(articles[articleIndex], articleIndex, page, task)
-      this.progressArticlesOnPage?.increment()
+      const article = articles[articleIndex] as unknown as Element
+      await this.parseArticle(
+        article,
+        articleIndex,
+        page,
+        task
+      )
+
+      this.events.emit('articleParsed', articleIndex + 1)
     }
+
+    this.events.emit('endParsingArticles')
 
     return true;
   }
 
-  async parseArticle(
-    article: HTMLElement,
+  private async parseArticle(
+    article: Element,
     articleIndex: number,
     pageIndex: number,
     task: Task
@@ -85,8 +87,8 @@ export class Parser {
     if (task.downloadImagesInComments) {
       Array.prototype.push.apply(
         articleImages,
-        await this.apiUtils.getImagesFromComments(
-          this.getArticleId(article)
+        await this.api.getImagesFromComments(
+          getArticleId(article)
         )
       )
     }
@@ -100,12 +102,5 @@ export class Parser {
       const name = `${pageIndex}_${articleIndex + 1}_${imageIndex + 1}_${getImageId(src)}`;
       this.images.push({ src, name })
     }
-  }
-
-  private getArticleId(article: HTMLElement) {
-    return article
-      ?.querySelector('a.link')
-      ?.getAttribute('href')
-      ?.match(/\/(\d+)/)?.[1]
   }
 }
