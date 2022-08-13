@@ -35,6 +35,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/cli@^0.11.21":
+  version "0.11.21"
+  resolved "https://registry.yarnpkg.com/@types/cli/-/cli-0.11.21.tgz#05db022ec1b7981ba82560587b8fd5bb347c5407"
+  integrity sha512-LRHorBP93ZPVtN8F0WBM7b00MeuU8SIBhbfr+B6Q4HhQ7AXubyRHE2ujnPkIyxXA/4A9pVK4QKz8X+524nCUHA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@^18.6.4":
   version "18.7.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.3.tgz#432c89796eab539b7a30b7b8801a727b585238a4"
