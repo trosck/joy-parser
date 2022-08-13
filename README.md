@@ -1,1 +1,1 @@
-# joyreactor-images-scrapper
+# Joyreactor images scraper
