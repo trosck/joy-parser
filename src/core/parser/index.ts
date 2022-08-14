@@ -22,18 +22,20 @@ export class Parser {
       throw new Error(`Incorrect link on category "${task.link}"`)
     }
 
-    this.events.emit('startParsingPages')
-
     let page = task.start
+
+    this.events.emit('startParsingPages')
+    this.events.emit('pageProcessed', 0, page)
+
     while (true) {
 
-      const countParsingPage = page - task.start
-      if ((countParsingPage) === task.total) break
+      const countParsedPage = page - task.start
+      if ((countParsedPage) === task.total) break
 
       const result = await this.parsePage(task, page)
       if (!result) break
 
-      this.events.emit('pageProcessed', countParsingPage, page)
+      this.events.emit('pageProcessed', countParsedPage, page)
 
       page++
     }
@@ -43,7 +45,7 @@ export class Parser {
     return this.images.splice(0)
   }
 
-  private async parsePage(task: Task, page = task.start) {
+  private async parsePage(task: Task, page: number) {
     let url = task.link
 
     if (task.all) url += '/all'
@@ -69,7 +71,7 @@ export class Parser {
         task
       )
 
-      this.events.emit('articleParsed', articleIndex + 1, articles.length)
+      this.events.emit('articleParsed', articleIndex + 1, articles.length, page)
     }
 
     this.events.emit('endParsingArticles')
@@ -97,7 +99,7 @@ export class Parser {
 
     for (let imageIndex = 0; imageIndex < articleImages.length; imageIndex++) {
       const image = articleImages[imageIndex];
-      const src = image.getAttribute('src')
+      const src = typeof image === 'string' ? image : image.getAttribute('src')
 
       if (!src) continue
 
