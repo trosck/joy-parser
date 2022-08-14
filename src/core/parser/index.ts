@@ -19,7 +19,7 @@ export class Parser {
   public async parse(task: Task) {
     const categoryTag = task.link.match(/tag\/([\w\+]+)/)?.[1]
     if (!categoryTag) {
-      throw new Error('incorrect link: ' + task.link)
+      throw new Error(`Incorrect link on category "${task.link}"`)
     }
 
     this.events.emit('startParsingPages')
