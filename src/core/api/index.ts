@@ -1,10 +1,10 @@
 import path from 'path'
 import fs from 'fs'
 
-import { Axios } from 'axios'
+import axios from 'axios'
 import { HTMLElement, parse } from 'node-html-parser'
 
-class Api extends Axios {
+class Api extends axios.Axios {
 
   /**
    * returns array image sources from comments
