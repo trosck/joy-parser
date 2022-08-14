@@ -9,7 +9,7 @@ Scraping and downloading images from Joyreactor-like sites
 
 ## Installation
 
-Just download the binary from the [latest release](!https://github.com/trosck/joyreactor-images-scraper/releases/latest) for your OS and run from any CLI
+Just download the binary from the [latest release](https://github.com/trosck/joyreactor-images-scraper/releases/latest) for your OS and run from any CLI
 
 ```bash
 ./joy-scraper-[linux|macos|win.exe]
