@@ -4,8 +4,7 @@
   "description": "parser for joyreactor",
   "main": "index.js",
   "scripts": {
-    "compile": "tsc && tsc-alias",
-    "start": "node --experimental-specifier-resolution=node dist/test"
+    "compile": "tsc && tsc-alias"
   },
   "type": "module",
   "keywords": [],
