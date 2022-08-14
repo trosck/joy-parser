@@ -4,7 +4,8 @@
   "description": "joyreactor scraper",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias",
+    "compile": "pkg ."
   },
   "type": "module",
   "keywords": [
