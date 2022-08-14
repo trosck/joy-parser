@@ -93,4 +93,6 @@ scraper.events.on(
   () => console.log('\n')
 )
 
-await scraper.parse(options)
+;(async () => {
+  await scraper.parse(options)
+})();
